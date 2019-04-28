@@ -1,0 +1,32 @@
+stages:
+  - build
+  - deploy
+
+services:
+  - docker:dind
+
+variables:
+  DOCKER_HOST: tcp://localhost:2375
+
+build_app:
+  image: docker:latest
+  stage: build
+  only:
+    - master
+    - tags
+  script:
+    - docker build -t ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_REF_NAME} .
+    - docker login -u ${CI_REGISTRY} -p ${CI_BUILD_TOKEN}
+    - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_REF_NAME}
+
+deploy_app:
+  image: ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_REF_NAME}
+  stage: deploy
+  environment: production
+  only:
+    - master
+    - tags
+#  script:
+#    - envsubst \$CI_COMMIT_TAG < deployment-template.yaml > deployment.yaml
+    - 
+#    - kubectl apply -f deployment-template.yaml
