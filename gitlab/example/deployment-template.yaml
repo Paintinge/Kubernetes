@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: example
-        image: xueluo/gitlab-runner:master
+        image: ${CI_REGISTRY}/${CI_PROJECT_PATH}:${CI_COMMIT_REF_NAME}
         ports:
         - containerPort: 8080
 ---
